@@ -16,13 +16,15 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
 using boost::asio::ip::tcp;
+using namespace cv;
 
 std::string make_daytime_string()
 {
-  using namespace std; // For time_t, time and ctime;
-  time_t now = time(0);
-  return ctime(&now);
+  return "Hello";
 }
 
 class tcp_connection
@@ -58,9 +60,8 @@ private:
   }
 
   void handle_write(const boost::system::error_code& /*error*/,
-      size_t size)
+      size_t )
   {
-      std::cout << "sent: " << size << std::endl;
   }
 
   tcp::socket socket_;
@@ -105,6 +106,19 @@ private:
 
 int main()
 {
+    cv::VideoCapture camera(0);
+    camera.set(CAP_PROP_FRAME_WIDTH, 640);
+    camera.set(CAP_PROP_FRAME_HEIGHT, 480);
+    
+    cv::Mat image;
+
+    camera >> image;
+    if(image.empty())
+    {
+        std::cout << "Empty" << std::endl;
+    }
+    image = image.reshape(0,1);
+    std::cout << "Image size: " << image.total() * image.elemSize() << std::endl;
   try
   {
     boost::asio::io_context io_context;

@@ -11,10 +11,17 @@ class BoostServerConan(ConanFile):
             "compiler": "gcc",
             }
     requires = [
-            "boost/1.71.0@conan/stable"
+            "boost/1.71.0@conan/stable",
+            "zlib/1.2.11@conan/stable",
+            "opencv/4.1.1@conan/stable"
             ]
     generators = "cmake_find_package"
-
+    options = {
+        "gtk" : [None, 2, 3]
+    }
+    default_options = {
+        "gtk": 2
+    }
     def build(self):
         cmake = CMake(self)
         cmake.configure()
