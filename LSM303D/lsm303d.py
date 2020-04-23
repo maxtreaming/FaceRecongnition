@@ -12,8 +12,6 @@ def write_once(path, value):
     with open(path, 'w') as f:
         f.write(value)
 
-
-
 sensor_address = 0x1d
 b = SMBus(1)
 
@@ -33,8 +31,6 @@ b.write_byte_data(sensor_address, 0x1F, enable_fifo)
 fifo_ctrl = 0b01000111
 b.write_byte_data(sensor_address, 0x2E, 0)
 b.write_byte_data(sensor_address, 0x2E, fifo_ctrl)
-# print("Fifo status:", "{0:b}".format(b.read_byte_data(sensor_address, 0x2F)))
-# b.write_byte_data(sensor_address, 0x2E, fifo_ctrl)
 
 fifo_interrupt = 2
 b.write_byte_data(sensor_address, 0x23, fifo_interrupt)
@@ -60,18 +56,13 @@ po.register(f, select.POLLPRI)
 while 1:
     f.seek(0)
     f.read()
-    # print("Pin:", f.read())
+
     event = po.poll(2000)
 
     if event:
-        print("Interrupt")
-        # print("Int 2 status:", "{0:b}".format(b.read_byte_data(sensor_address, 0x35)))
-        # print("Int 1 status:", "{0:b}".format(b.read_byte_data(sensor_address, 0x31)))
         status = b.read_byte_data(sensor_address, 0x2F)
 
-        print("Int FIFO status:", "{0:b}".format(status))
         if status & (1 << 7):
-            # print("Status A:", "{0:b}".format(b.read_byte_data(sensor_address, 0x27)))
 
             acc_x_table = []
             acc_y_table = []
@@ -89,7 +80,6 @@ while 1:
                 acc_y_table.append(int.from_bytes([long_acc_y1, long_acc_y], byteorder='big', signed=True))
                 acc_z_table.append(int.from_bytes([long_acc_z1, long_acc_z], byteorder='big', signed=True))
 
-            print("Int FIFO status:", "{0:b}".format(b.read_byte_data(sensor_address, 0x2F)))
             print("Value x", sum(acc_x_table) / len(acc_x_table))
             print("Value y", sum(acc_y_table) / len(acc_y_table))
             print("Value z", sum(acc_z_table) / len(acc_z_table))
@@ -97,5 +87,3 @@ while 1:
 
     else:
         print("Timeout")
-
-    # print("Acc z:", acc_z, "{0:b}".format(long_acc),"{0:b}".format(uint16_acc))
